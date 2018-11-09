@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# We set -x because it emits useful output when building the Docker image.
+set -eux
+
+# About apk: http://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
+# For a list of Alpine packages, see https://pkgs.alpinelinux.org/packages
+
+apk update;
+
+# Install Nginx
+apk add --no-cache nginx;
+install -d /run/nginx;
+
+# Install supervisor
+apk add --no-cache supervisor;
