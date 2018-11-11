@@ -10,6 +10,7 @@ host_port="$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print
 
 container_name="";
 
+
 ##
 # HTTP
 ##
@@ -17,6 +18,7 @@ container_name="";
 http_status() {
     head -1 | cut -d " " -f 2;
 }
+
 
 http_header() {
     name="$1"; shift;
@@ -26,9 +28,11 @@ http_header() {
     sed -n -e 's|^'"${name}"': \(.*\).$|\1|p';
 }
 
+
 http_body() {
     sed -n -e '/^.$/,$p' | tail +2;
 }
+
 
 ##
 # Init
@@ -50,14 +54,15 @@ start_container() {
 
     echo "Starting test container: ${container_name}...";
 
-    docker run                                      \
-        --rm --detach                               \
-        --name "${container_name}"                  \
-        --publish "${host_port}:80"                 \
-        --volume "${wd}/test:/var/www/application"  \
-        "${image_name}"                             \
+    docker run                                                  \
+        --rm --detach                                           \
+        --name "${container_name}"                              \
+        --publish "${host_port}:80"                             \
+        --volume "${wd}/test/application:/var/www/application"  \
+        "${image_name}"                                         \
         > /dev/null;
 }
+
 
 http_get() {
     local path="$1"; shift;
@@ -69,6 +74,7 @@ http_get() {
 
     return ${e};
 }
+
 
 wait_for_server() {
     echo "Waiting on server to start up...";
@@ -113,6 +119,7 @@ wait_for_server() {
     rm "${response}" "${error}";
 }
 
+
 ##
 # Tests
 ##
@@ -121,11 +128,11 @@ fail() {
     echo "FAIL:" "$@";
 }
 
+
 test_root_resource() {
     echo "Testing root resource...";
 
     local response="$(mktemp)";
-    local     body="$(mktemp)";
     local    error="$(mktemp)";
 
     local e;
@@ -161,13 +168,73 @@ test_root_resource() {
         return 1;
     fi;
 
+    rm "${response}" "${error}";
+}
+
+
+test_app_hello_html() {
+    echo "Testing application static HTML...";
+
+    local response="$(mktemp)";
+    local     body="$(mktemp)";
+    local    error="$(mktemp)";
+
+    if ! http_get /application/hello.html > "${response}" 2> "${error}"; then
+        fail "Error HTTP status from server.";
+        echo "Error from curl:"; cat "${error}";
+        echo "Response:"; cat "${response}";
+        sleep 100000;
+        return 1;
+    fi;
+
+    http_body < "${response}" > "${body}";
+
+    local hello="${wd}/test/application/hello.html";
+
+    if ! diff --brief "${hello}" "${body}" > /dev/null; then
+        fail "Body does not match expected output.";
+        diff -wud "${hello}" "${body}";
+    fi;
+
     rm "${response}" "${body}" "${error}";
 }
 
+
+test_app_hello_php() {
+    echo "Testing application basic PHP...";
+
+    local response="$(mktemp)";
+    local     body="$(mktemp)";
+    local    error="$(mktemp)";
+
+    if ! http_get /application/hello.php > "${response}" 2> "${error}"; then
+        fail "Error HTTP status from server.";
+        echo "Error from curl:"; cat "${error}";
+        echo "Response:"; cat "${response}";
+        sleep 100000;
+        return 1;
+    fi;
+
+    http_body < "${response}" > "${body}";
+
+    local hello="${wd}/test/application/hello.html";
+
+    if ! diff --brief "${hello}" "${body}" > /dev/null; then
+        fail "Body does not match expected output.";
+        diff -wud "${hello}" "${body}";
+    fi;
+
+    rm "${response}" "${body}" "${error}";
+}
+
+
 echo "Testing service...";
 
-start_container    || exit 1;
-wait_for_server    || exit 2
-test_root_resource || exit 100;
+start_container     || exit 1;
+wait_for_server     || exit 2
+test_root_resource  || exit 100;
+# test_app_root       || exit 200;
+test_app_hello_html || exit 201;
+test_app_hello_php  || exit 202;
 
 echo "Tests passed."
