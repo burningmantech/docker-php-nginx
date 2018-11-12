@@ -14,3 +14,8 @@ install -d /run/nginx;
 
 # Install supervisor
 apk add --no-cache supervisor;
+
+# Send log output to supervisord's standard I/O
+# (Note that supervisord is process 1)
+ln -s /proc/1/fd/1 /var/log/nginx/access.log;
+ln -s /proc/1/fd/2 /var/log/nginx/error.log;
