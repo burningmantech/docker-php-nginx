@@ -58,6 +58,7 @@ start_container() {
         --rm --detach                                           \
         --name "${container_name}"                              \
         --publish "${host_port}:80"                             \
+        --volume "${wd}/test/static:/var/www/html"              \
         --volume "${wd}/test/application:/var/www/application"  \
         "${image_name}"                                         \
         > /dev/null;
@@ -172,6 +173,33 @@ test_root_resource() {
 }
 
 
+test_static_hello_html() {
+    echo "Testing document root static HTML...";
+
+    local response="$(mktemp)";
+    local     body="$(mktemp)";
+    local    error="$(mktemp)";
+
+    if ! http_get /hello.html > "${response}" 2> "${error}"; then
+        fail "Error HTTP status from server.";
+        echo "Error from curl:"; cat "${error}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    http_body < "${response}" > "${body}";
+
+    local hello="${wd}/test/static/hello.html";
+
+    if ! diff --brief "${hello}" "${body}" > /dev/null; then
+        fail "Body does not match expected output.";
+        diff -wud "${hello}" "${body}";
+    fi;
+
+    rm "${response}" "${body}" "${error}";
+}
+
+
 test_app_hello_html() {
     echo "Testing application static HTML...";
 
@@ -228,11 +256,14 @@ test_app_hello_php() {
 
 echo "Testing service...";
 
-start_container     || exit 1;
-wait_for_server     || exit 2
-test_root_resource  || exit 100;
-# test_app_root       || exit 200;
-test_app_hello_html || exit 201;
-test_app_hello_php  || exit 202;
+start_container        || exit 1;
+wait_for_server        || exit 2;
+test_root_resource     || exit 100;
+#test_error_404         || exit 101;
+#test_error_500         || exit 102;
+test_static_hello_html || exit 150;
+# test_app_root         || exit 200;
+test_app_hello_html    || exit 201;
+test_app_hello_php     || exit 202;
 
 echo "Tests passed."
