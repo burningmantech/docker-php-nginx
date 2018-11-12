@@ -183,7 +183,6 @@ test_app_hello_html() {
         fail "Error HTTP status from server.";
         echo "Error from curl:"; cat "${error}";
         echo "Response:"; cat "${response}";
-        sleep 100000;
         return 1;
     fi;
 
@@ -211,7 +210,6 @@ test_app_hello_php() {
         fail "Error HTTP status from server.";
         echo "Error from curl:"; cat "${error}";
         echo "Response:"; cat "${response}";
-        sleep 100000;
         return 1;
     fi;
 
