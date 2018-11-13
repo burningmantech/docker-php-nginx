@@ -194,6 +194,7 @@ test_static_hello_html() {
     if ! diff --brief "${hello}" "${body}" > /dev/null; then
         fail "Body does not match expected output.";
         diff -wud "${hello}" "${body}";
+        return 1;
     fi;
 
     rm "${response}" "${body}" "${error}";
@@ -221,6 +222,7 @@ test_app_hello_html() {
     if ! diff --brief "${hello}" "${body}" > /dev/null; then
         fail "Body does not match expected output.";
         diff -wud "${hello}" "${body}";
+        return 1;
     fi;
 
     rm "${response}" "${body}" "${error}";
@@ -248,6 +250,7 @@ test_app_hello_php() {
     if ! diff --brief "${hello}" "${body}" > /dev/null; then
         fail "Body does not match expected output.";
         diff -wud "${hello}" "${body}";
+        return 1;
     fi;
 
     rm "${response}" "${body}" "${error}";
