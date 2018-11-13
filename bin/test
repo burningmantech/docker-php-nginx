@@ -30,7 +30,7 @@ http_header() {
 
 
 http_body() {
-    sed -n -e '/^.$/,$p' | tail +2;
+    sed -n -e '/^.$/,$p' | tail -n +2;
 }
 
 
