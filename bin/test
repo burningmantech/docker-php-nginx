@@ -1,0 +1,344 @@
+#!/bin/sh
+
+# Run sh within a new container
+
+set -eu
+
+wd="$(cd "$(dirname "$0")/.." && pwd)";
+
+host_port="$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')";
+
+container_name="";
+
+
+##
+# HTTP
+##
+
+http_status() {
+    head -1 | cut -d " " -f 2;
+}
+
+
+http_header() {
+    name="$1"; shift;
+
+    # FIXME: We're matching the ending carriage return with '.' here because
+    # '\r ' doesn't seem to work.
+    sed -n -e 's|^'"${name}"': \(.*\).$|\1|p';
+}
+
+
+http_body() {
+    sed -n -e '/^.$/,$p' | tail +2;
+}
+
+
+##
+# Init
+##
+
+start_container() {
+    local image_repo="php-nginx";
+    local  image_tag="$(cat "${wd}/Dockerfile" | grep -e '^FROM ' | sed -e 's|^FROM php:||' -e 's|-fpm||')";
+    local image_name="${image_repo}:${image_tag}";
+
+    container_name="php-nginx-test_${host_port}";
+
+    cleanup() {
+        echo "Terminating test container: ${container_name}...";
+
+        docker kill "${container_name}" > /dev/null;
+    }
+    trap cleanup EXIT;
+
+    echo "Starting test container: ${container_name}...";
+
+    docker run                                                  \
+        --rm --detach                                           \
+        --name "${container_name}"                              \
+        --publish "${host_port}:80"                             \
+        --volume "${wd}/test/static:/var/www/html"              \
+        --volume "${wd}/test/application:/var/www/application"  \
+        "${image_name}"                                         \
+        > /dev/null;
+}
+
+
+http_get() {
+    local path="$1"; shift;
+
+    local e;
+
+    curl                                        \
+        --include --fail --silent --show-error  \
+        "http://localhost:${host_port}${path}"  \
+        && e=0 || e=$?;
+
+    return ${e};
+}
+
+
+http_get_error() {
+    local path="$1"; shift;
+
+    local e;
+
+    curl                                        \
+        --include --silent --show-error  \
+        "http://localhost:${host_port}${path}"  \
+        && e=0 || e=$?;
+
+    return ${e};
+}
+
+
+wait_for_server() {
+    echo "Waiting on server to start up...";
+
+    local response="$(mktemp)";
+    local    error="$(mktemp)";
+
+    local   count=0;
+    local timeout=20;
+
+    local e;
+
+    while true; do
+        http_get / > "${response}" 2> "${error}" && e=0 || e=$?;
+
+        count=$((${count} + 1));
+
+        if [ ${e} -eq 7 ]; then
+            if [ ${count} -gt ${timeout} ]; then echo "ERROR: Timed out"; return 1; fi;
+            echo "Connection refused from server; waiting on server to start...";
+            sleep 1;
+            continue;
+        fi;
+
+        if [ ${e} -eq 52 ]; then
+            if [ ${count} -gt ${timeout} ]; then echo "ERROR: Timed out"; return 1; fi;
+            echo "Empty reply from server; waiting on server to start...";
+            sleep 1;
+            continue;
+        fi;
+
+        if [ ${e} -ne 0 ]; then
+            fail "Error HTTP status from server.";
+            echo "Error from curl:"; cat "${error}";
+            echo "Response:"; cat "${response}";
+            return 1;
+        fi;
+
+        break;
+    done;
+
+    rm "${response}" "${error}";
+}
+
+
+##
+# Tests
+##
+
+fail() {
+    echo "FAIL:" "$@";
+}
+
+
+diff_body() {
+    local expected="$1"; shift;
+    local received="$1"; shift;
+
+    if ! diff --brief "${expected}" "${received}" > /dev/null; then
+        fail "Received body does not match expected output.";
+        diff -ud "${expected}" "${received}";
+        return 1;
+    fi;
+}
+
+
+test_root_resource() {
+    echo "Testing root resource...";
+
+    local response="$(mktemp)";
+    local    error="$(mktemp)";
+
+    local e;
+
+    http_get / > "${response}" 2> "${error}" && e=0 || e=$?;
+
+    if [ ${e} -eq 22 ]; then
+        fail "Root resource not found.  Expected redirect.";
+        return 1;
+    fi;
+
+    if [ ${e} -ne 0 ]; then
+        fail "Error HTTP status from server.";
+        echo "Error from curl:"; cat "${error}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    local status="$(http_status < "${response}")";
+
+    if [ ${status} -ne 301 ]; then
+        fail "Expected HTTP status 301 (MOVED_PERMANENTLY) for root resource.";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    local location="$(http_header Location < "${response}")";
+
+    if [ "${location}" != "./application/" ]; then
+        fail "Expected redirect to ./application/ for root resource.";
+        echo "Location: ${location}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    rm "${response}" "${error}";
+}
+
+
+test_static_hello_html() {
+    echo "Testing document root static HTML...";
+
+    local response="$(mktemp)";
+    local     body="$(mktemp)";
+    local    error="$(mktemp)";
+
+    if ! http_get /hello.html > "${response}" 2> "${error}"; then
+        fail "Error HTTP status from server.";
+        echo "Error from curl:"; cat "${error}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    local content_type="$(http_header Content-Type < "${response}")";
+
+    if [ "${content_type}" != "text/html" ]; then
+        fail "Expected text/html content type.";
+        echo "Content-Type: ${content_type}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    http_body < "${response}" > "${body}";
+
+    diff_body "${wd}/test/static/hello.html" "${body}" || return 1;
+
+    rm "${response}" "${body}" "${error}";
+}
+
+
+test_static_not_found() {
+    echo "Testing static resource not found...";
+
+    local response="$(mktemp)";
+    local     body="$(mktemp)";
+    local    error="$(mktemp)";
+
+    local e;
+
+    http_get_error /xyzzy.html > "${response}" 2> "${error}";
+
+    local status="$(http_status < "${response}")";
+
+    if [ ${status} -ne 404 ]; then
+        fail "Expected HTTP status 404 (NOT_FOUND).";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    local content_type="$(http_header Content-Type < "${response}")";
+
+    if [ "${content_type}" != "text/html" ]; then
+        fail "Expected text/html content type.";
+        echo "Content-Type: ${content_type}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    http_body < "${response}" > "${body}";
+
+    diff_body "${wd}/error/404.html" "${body}" || return 1;
+
+    rm "${response}" "${body}" "${error}";
+}
+
+
+test_app_hello_html() {
+    echo "Testing application static HTML...";
+
+    local response="$(mktemp)";
+    local     body="$(mktemp)";
+    local    error="$(mktemp)";
+
+    if ! http_get /application/hello.html > "${response}" 2> "${error}"; then
+        fail "Error HTTP status from server.";
+        echo "Error from curl:"; cat "${error}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    local content_type="$(http_header Content-Type < "${response}")";
+
+    if [ "${content_type}" != "text/html" ]; then
+        fail "Expected text/html content type.";
+        echo "Content-Type: ${content_type}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    http_body < "${response}" > "${body}";
+
+    diff_body "${wd}/test/application/hello.html" "${body}" || return 1;
+
+    rm "${response}" "${body}" "${error}";
+}
+
+
+test_app_hello_php() {
+    echo "Testing application basic PHP...";
+
+    local response="$(mktemp)";
+    local     body="$(mktemp)";
+    local    error="$(mktemp)";
+
+    if ! http_get /application/hello.php > "${response}" 2> "${error}"; then
+        fail "Error HTTP status from server.";
+        echo "Error from curl:"; cat "${error}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    local content_type="$(http_header Content-Type < "${response}")";
+
+    if [ "${content_type}" != "text/html; charset=UTF-8" ]; then
+        fail "Expected text/html; charset=UTF-8 content type.";
+        echo "Content-Type: ${content_type}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    http_body < "${response}" > "${body}";
+
+    diff_body "${wd}/test/application/hello.html" "${body}" || return 1;
+
+    rm "${response}" "${body}" "${error}";
+}
+
+
+echo "Testing service...";
+
+start_container        || exit 1;
+wait_for_server        || exit 2;
+test_root_resource     || exit 100;
+test_static_not_found  || exit 144;
+test_static_hello_html || exit 200;
+# test_app_root        || exit 300;
+test_app_hello_html    || exit 301;
+test_app_hello_php     || exit 302;
+
+echo "Tests passed."

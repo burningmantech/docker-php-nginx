@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Run sh within a new container
+
+set -eu
+
+wd="$(cd "$(dirname "$0")/.." && pwd)";
+
+docker exec --interactive --tty php-nginx ash;
