@@ -2,7 +2,7 @@
 
 # Run sh within a new container
 
-set -eu
+set -eux
 
 wd="$(cd "$(dirname "$0")/.." && pwd)";
 
