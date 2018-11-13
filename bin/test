@@ -123,6 +123,13 @@ wait_for_server() {
             continue;
         fi;
 
+        if [ ${e} -eq 56 ]; then
+            if [ ${count} -gt ${timeout} ]; then echo "ERROR: Timed out"; return 1; fi;
+            echo "Connection to server reset; waiting on server to start...";
+            sleep 1;
+            continue;
+        fi;
+
         if [ ${e} -ne 0 ]; then
             fail "Error HTTP status from server.";
             echo "Error from curl:"; cat "${error}";
