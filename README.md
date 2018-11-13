@@ -12,10 +12,10 @@ It includes:
 
 ## Usage
 
-This image builds on the the corresponding version of the `fpm-alpine` variant of the (Official PHP Image)[https://hub.docker.com/_/php/] on Docker Hub.
+This image builds on the the corresponding version of the `fpm-alpine` variant of the [Official PHP Image](https://hub.docker.com/_/php/) on Docker Hub.
 It adds the Nginix web server, which is used to vend applications.
 
-This image also adds PHP-FPM, which is used for improving web server performance, and (Supervisor)[http://supervisord.org], which is used to run and monitor PHP-FPM and Nginix within containers.
+This image also adds PHP-FPM, which is used for improving web server performance, and [Supervisor](http://supervisord.org), which is used to run and monitor PHP-FPM and Nginix within containers.
 
 Note that this does not use the `apache` variants of the Official PHP Image, so any reference's in the Official PHP Image's documentation to configuring Apache do not apply here.
 See below for instructions on configuring Nginx.
@@ -62,7 +62,7 @@ This is useful, for example, in a development scenario, where you want to be abl
 
 ### Command Line PHP Programs
 
-To run command line PHP programs, see the "With Command Line" section in the (Official PHP Image)[https://hub.docker.com/_/php/] documentation.
+To run command line PHP programs, see the "With Command Line" section in the [Official PHP Image](https://hub.docker.com/_/php/) documentation.
 You may prefer to use the `cli` variant of the Official PHP Image in this case, as you probably don't need PHP-FPM or Nginx.
 However, if you are testing a web application that uses this container, you may wish to use the same container for consistency.
 
@@ -102,7 +102,7 @@ Run `php -m` (or `php -i`) to get a list:
 docker run --rm php-fpm:7.2-alpine3.8 php -m
 ```
 
-To add PHP extensions to your images, see the "How to install more PHP extensions" section in the (Official PHP Image)[https://hub.docker.com/_/php/] documentation.
+To add PHP extensions to your images, see the "How to install more PHP extensions" section in the [Official PHP Image](https://hub.docker.com/_/php/) documentation.
 
 
 ## Versioning Strategy
