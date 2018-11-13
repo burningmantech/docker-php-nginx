@@ -208,37 +208,6 @@ test_root_resource() {
 }
 
 
-test_static_hello_html() {
-    echo "Testing document root static HTML...";
-
-    local response="$(mktemp)";
-    local     body="$(mktemp)";
-    local    error="$(mktemp)";
-
-    if ! http_get /hello.html > "${response}" 2> "${error}"; then
-        fail "Error HTTP status from server.";
-        echo "Error from curl:"; cat "${error}";
-        echo "Response:"; cat "${response}";
-        return 1;
-    fi;
-
-    local content_type="$(http_header Content-Type < "${response}")";
-
-    if [ "${content_type}" != "text/html" ]; then
-        fail "Expected text/html content type.";
-        echo "Content-Type: ${content_type}";
-        echo "Response:"; cat "${response}";
-        return 1;
-    fi;
-
-    http_body < "${response}" > "${body}";
-
-    diff_body "${wd}/test/static/hello.html" "${body}" || return 1;
-
-    rm "${response}" "${body}" "${error}";
-}
-
-
 test_static_not_found() {
     echo "Testing static resource not found...";
 
@@ -270,6 +239,37 @@ test_static_not_found() {
     http_body < "${response}" > "${body}";
 
     diff_body "${wd}/error/404.html" "${body}" || return 1;
+
+    rm "${response}" "${body}" "${error}";
+}
+
+
+test_static_hello_html() {
+    echo "Testing document root static HTML...";
+
+    local response="$(mktemp)";
+    local     body="$(mktemp)";
+    local    error="$(mktemp)";
+
+    if ! http_get /hello.html > "${response}" 2> "${error}"; then
+        fail "Error HTTP status from server.";
+        echo "Error from curl:"; cat "${error}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    local content_type="$(http_header Content-Type < "${response}")";
+
+    if [ "${content_type}" != "text/html" ]; then
+        fail "Expected text/html content type.";
+        echo "Content-Type: ${content_type}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    http_body < "${response}" > "${body}";
+
+    diff_body "${wd}/test/static/hello.html" "${body}" || return 1;
 
     rm "${response}" "${body}" "${error}";
 }
