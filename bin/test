@@ -130,6 +130,18 @@ fail() {
 }
 
 
+diff_body() {
+    local expected="$1"; shift;
+    local received="$1"; shift;
+
+    if ! diff --brief "${expected}" "${received}" > /dev/null; then
+        fail "Received body does not match expected output.";
+        diff -wud "${expected}" "${received}";
+        return 1;
+    fi;
+}
+
+
 test_root_resource() {
     echo "Testing root resource...";
 
@@ -189,13 +201,7 @@ test_static_hello_html() {
 
     http_body < "${response}" > "${body}";
 
-    local hello="${wd}/test/static/hello.html";
-
-    if ! diff --brief "${hello}" "${body}" > /dev/null; then
-        fail "Body does not match expected output.";
-        diff -wud "${hello}" "${body}";
-        return 1;
-    fi;
+    diff_body "${wd}/test/static/hello.html" "${body}" || return 1;
 
     rm "${response}" "${body}" "${error}";
 }
@@ -217,13 +223,7 @@ test_app_hello_html() {
 
     http_body < "${response}" > "${body}";
 
-    local hello="${wd}/test/application/hello.html";
-
-    if ! diff --brief "${hello}" "${body}" > /dev/null; then
-        fail "Body does not match expected output.";
-        diff -wud "${hello}" "${body}";
-        return 1;
-    fi;
+    diff_body "${wd}/test/application/hello.html" "${body}" || return 1;
 
     rm "${response}" "${body}" "${error}";
 }
@@ -245,13 +245,7 @@ test_app_hello_php() {
 
     http_body < "${response}" > "${body}";
 
-    local hello="${wd}/test/application/hello.html";
-
-    if ! diff --brief "${hello}" "${body}" > /dev/null; then
-        fail "Body does not match expected output.";
-        diff -wud "${hello}" "${body}";
-        return 1;
-    fi;
+    diff_body "${wd}/test/application/hello.html" "${body}" || return 1;
 
     rm "${response}" "${body}" "${error}";
 }
