@@ -136,7 +136,7 @@ diff_body() {
 
     if ! diff --brief "${expected}" "${received}" > /dev/null; then
         fail "Received body does not match expected output.";
-        diff -wud "${expected}" "${received}";
+        diff -ud "${expected}" "${received}";
         return 1;
     fi;
 }
