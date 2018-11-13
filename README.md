@@ -32,7 +32,7 @@ The install directory for PHP applications is configured in Nginx as `/var/www/a
 
 #### Error Message Content
 
-The install directory for HTTP error pages is configured in Nginx as `/var/www/error/` and is used internally for default HTTP error content by the server.
+The install directory for HTTP error pages is configured in Nginx as `/var/www/error/` and is used internally for [default HTTP error content](error/) by the server.
 
 ### Using With A Dockerfile
 
