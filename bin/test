@@ -68,6 +68,8 @@ start_container() {
 http_get() {
     local path="$1"; shift;
 
+    local e;
+
     curl                                        \
         --include --fail --silent --show-error  \
         "http://localhost:${host_port}${path}"  \
