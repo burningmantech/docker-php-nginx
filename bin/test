@@ -79,6 +79,20 @@ http_get() {
 }
 
 
+http_get_error() {
+    local path="$1"; shift;
+
+    local e;
+
+    curl                                        \
+        --include --silent --show-error  \
+        "http://localhost:${host_port}${path}"  \
+        && e=0 || e=$?;
+
+    return ${e};
+}
+
+
 wait_for_server() {
     echo "Waiting on server to start up...";
 
@@ -169,7 +183,7 @@ test_root_resource() {
     local status="$(http_status < "${response}")";
 
     if [ ${status} -ne 301 ]; then
-        fail "Expected HTTP status 301 (redirect) for root resource.";
+        fail "Expected HTTP status 301 (MOVED_PERMANENTLY) for root resource.";
         echo "Response:"; cat "${response}";
         return 1;
     fi;
@@ -213,6 +227,42 @@ test_static_hello_html() {
     http_body < "${response}" > "${body}";
 
     diff_body "${wd}/test/static/hello.html" "${body}" || return 1;
+
+    rm "${response}" "${body}" "${error}";
+}
+
+
+test_static_not_found() {
+    echo "Testing static resource not found...";
+
+    local response="$(mktemp)";
+    local     body="$(mktemp)";
+    local    error="$(mktemp)";
+
+    local e;
+
+    http_get_error /xyzzy.html > "${response}" 2> "${error}";
+
+    local status="$(http_status < "${response}")";
+
+    if [ ${status} -ne 404 ]; then
+        fail "Expected HTTP status 404 (NOT_FOUND).";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    local content_type="$(http_header Content-Type < "${response}")";
+
+    if [ "${content_type}" != "text/html" ]; then
+        fail "Expected text/html content type.";
+        echo "Content-Type: ${content_type}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    http_body < "${response}" > "${body}";
+
+    diff_body "${wd}/error/404.html" "${body}" || return 1;
 
     rm "${response}" "${body}" "${error}";
 }
@@ -285,11 +335,15 @@ echo "Testing service...";
 start_container        || exit 1;
 wait_for_server        || exit 2;
 test_root_resource     || exit 100;
-#test_error_404         || exit 101;
-#test_error_500         || exit 102;
-test_static_hello_html || exit 150;
-# test_app_root         || exit 200;
-test_app_hello_html    || exit 201;
-test_app_hello_php     || exit 202;
+test_static_not_found  || exit 144;
+test_static_hello_html || exit 200;
+# test_app_root        || exit 300;
+test_app_hello_html    || exit 301;
+test_app_hello_php     || exit 302;
+# test_app_bad_request || exit 340;
+# test_app_forbidden   || exit 343;
+# test_app_not_found   || exit 344;
+# test_app_not_allowed || exit 345;
+# test_app_error       || exit 340;
 
 echo "Tests passed."

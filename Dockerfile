@@ -11,8 +11,11 @@ COPY ./config/php-fpm.conf       /usr/local/etc/php-fpm.d/zz-docker_nginx.conf
 COPY ./config/supervisord.conf   /etc/supervisor.d/php-fpm-nginx.ini
 
 # Copy static web content
-COPY ./error/404.html /var/www/html/404.html
-COPY ./error/500.html /var/www/html/500.html
+COPY ./error/400.html /var/www/error/400.html
+COPY ./error/403.html /var/www/error/403.html
+COPY ./error/404.html /var/www/error/404.html
+COPY ./error/405.html /var/www/error/405.html
+COPY ./error/500.html /var/www/error/500.html
 
 # Copy tools
 COPY ./tools/checkphpsyntax /usr/local/bin/checkphpsyntax
