@@ -340,10 +340,5 @@ test_static_hello_html || exit 200;
 # test_app_root        || exit 300;
 test_app_hello_html    || exit 301;
 test_app_hello_php     || exit 302;
-# test_app_bad_request || exit 340;
-# test_app_forbidden   || exit 343;
-# test_app_not_found   || exit 344;
-# test_app_not_allowed || exit 345;
-# test_app_error       || exit 340;
 
 echo "Tests passed."
