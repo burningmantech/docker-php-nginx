@@ -201,6 +201,15 @@ test_static_hello_html() {
         return 1;
     fi;
 
+    local content_type="$(http_header Content-Type < "${response}")";
+
+    if [ "${content_type}" != "text/html" ]; then
+        fail "Expected text/html content type.";
+        echo "Content-Type: ${content_type}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
     http_body < "${response}" > "${body}";
 
     diff_body "${wd}/test/static/hello.html" "${body}" || return 1;
@@ -223,6 +232,15 @@ test_app_hello_html() {
         return 1;
     fi;
 
+    local content_type="$(http_header Content-Type < "${response}")";
+
+    if [ "${content_type}" != "text/html" ]; then
+        fail "Expected text/html content type.";
+        echo "Content-Type: ${content_type}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
     http_body < "${response}" > "${body}";
 
     diff_body "${wd}/test/application/hello.html" "${body}" || return 1;
@@ -241,6 +259,15 @@ test_app_hello_php() {
     if ! http_get /application/hello.php > "${response}" 2> "${error}"; then
         fail "Error HTTP status from server.";
         echo "Error from curl:"; cat "${error}";
+        echo "Response:"; cat "${response}";
+        return 1;
+    fi;
+
+    local content_type="$(http_header Content-Type < "${response}")";
+
+    if [ "${content_type}" != "text/html; charset=UTF-8" ]; then
+        fail "Expected text/html; charset=UTF-8 content type.";
+        echo "Content-Type: ${content_type}";
         echo "Response:"; cat "${response}";
         return 1;
     fi;
