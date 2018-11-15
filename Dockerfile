@@ -20,6 +20,9 @@ COPY ./error/500.html /var/www/error/500.html
 # Copy tools
 COPY ./tools/checkphpsyntax /usr/local/bin/checkphpsyntax
 
+# Set working directory to where the application lives
+WORKDIR /var/www/application
+
 # Set command to run
 CMD [ "supervisord", "--nodaemon", "-c", "/etc/supervisord.conf" ]
 
