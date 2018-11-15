@@ -99,10 +99,19 @@ wait_for_server() {
     local response="$(mktemp)";
     local    error="$(mktemp)";
 
-    local   count=0;
-    local timeout=20;
-
+    local count=0;
     local e;
+
+    check_timeout() {
+        local timeout=60;
+
+        if [ ${count} -gt ${timeout} ]; then
+            echo "ERROR: Timed out";
+            echo "Logs:";
+            docker logs "${container_name}";
+            return 1;
+        fi;
+    }
 
     while true; do
         http_get / > "${response}" 2> "${error}" && e=0 || e=$?;
@@ -110,21 +119,21 @@ wait_for_server() {
         count=$((${count} + 1));
 
         if [ ${e} -eq 7 ]; then
-            if [ ${count} -gt ${timeout} ]; then echo "ERROR: Timed out"; return 1; fi;
+            check_timeout || return 1;
             echo "Connection refused from server; waiting on server to start...";
             sleep 1;
             continue;
         fi;
 
         if [ ${e} -eq 52 ]; then
-            if [ ${count} -gt ${timeout} ]; then echo "ERROR: Timed out"; return 1; fi;
+            check_timeout || return 1;
             echo "Empty reply from server; waiting on server to start...";
             sleep 1;
             continue;
         fi;
 
         if [ ${e} -eq 56 ]; then
-            if [ ${count} -gt ${timeout} ]; then echo "ERROR: Timed out"; return 1; fi;
+            check_timeout || return 1;
             echo "Connection to server reset; waiting on server to start...";
             sleep 1;
             continue;
