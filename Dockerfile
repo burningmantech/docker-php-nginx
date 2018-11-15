@@ -5,8 +5,8 @@ COPY ./tools/install /docker_install/install
 RUN /docker_install/install && rm -rf /docker_install
 
 # Copy configuration
-COPY ./config/nginx-http.conf    /etc/nginx/conf.d/01-http.conf
-COPY ./config/nginx-default.conf /etc/nginx/conf.d/10-default.conf
+COPY ./config/nginx-http.conf    /etc/nginx/conf.d/0-http.conf
+COPY ./config/nginx-default.conf /etc/nginx/conf.d/default.conf
 COPY ./config/php-fpm.conf       /usr/local/etc/php-fpm.d/zz-docker_nginx.conf
 COPY ./config/supervisord.conf   /etc/supervisor.d/php-fpm-nginx.ini
 
