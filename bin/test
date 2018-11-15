@@ -100,7 +100,7 @@ wait_for_server() {
     local    error="$(mktemp)";
 
     local   count=0;
-    local timeout=20;
+    local timeout=60;
 
     local e;
 
