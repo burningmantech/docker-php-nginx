@@ -1,9 +1,20 @@
 #!/bin/sh
 
-# Run sh within a new container
+#
+# Open a shell in the running Docker container
+#
 
-set -eu
+. "$(dirname "$0")/.common.sh";
 
-wd="$(cd "$(dirname "$0")/.." && pwd)";
+if [ -t 0 ]; then
+    tty_args="--tty";
+else
+    tty_args="";
+fi;
 
-docker exec --interactive --tty php-nginx ash;
+exec docker exec         \
+    --interactive        \
+    ${tty_args}          \
+    "${container_name}"  \
+    ash                  \
+    ;
