@@ -73,8 +73,8 @@ However, if you are testing a web application that uses this container, you may 
 
 The configuration files for Nginx are at `/etc/nginx/`.
 This image adds:
- * [`/etc/nginx/conf.d/0-http.conf`](config/nginx-http.conf): Enables gzip.
- * [`/etc/nginx/conf.d/default.conf`](config/nginx-default.conf): Sets up the default web site.
+ * [`/etc/nginx/conf.d/01-http.conf`](config/nginx-http.conf): Enables gzip.
+ * [`/etc/nginx/conf.d/10-default.conf`](config/nginx-default.conf): Sets up the default web site.
 
 ### PHP
 
