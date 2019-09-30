@@ -67,7 +67,7 @@ jobs:
       - name: Save Docker image
         run: |
           mkdir images
-          docker image save php-nginx:7.2-alpine3.8 | gzip -9 > images/image.tgz
+          docker image save $(docker images php-nginx -q) | gzip -9 > images/images.tgz
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v1
@@ -96,7 +96,7 @@ jobs:
           name: images
 
       - name: Load Docker image
-        run: gzip --uncompress --stdout images/image.tgz | docker image load
+        run: gzip --uncompress --stdout images/images.tgz | docker image load
 
       - name: Test Docker image
         run: ./bin/test
