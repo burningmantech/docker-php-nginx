@@ -1,13 +1,24 @@
 FROM php:7.2-fpm-alpine3.8
 
-# Copy the install script, run it, delete it
-COPY ./tools/install /docker_install/install
-RUN /docker_install/install && rm -rf /docker_install
+# Install Nginx and supervisor
+RUN apk add --no-cache nginx supervisor;
 
-# Copy configuration
+# Ngnix needs a run directory
+RUN install -d /run/nginx;
+
+# Send log output to supervisord's standard I/O
+# (Note that supervisord is process 1)
+RUN ln -s /proc/1/fd/1 /var/log/nginx/access.log;
+RUN ln -s /proc/1/fd/2 /var/log/nginx/error.log;
+
+# Copy Nginx configuration
 COPY ./config/nginx-http.conf          /etc/nginx/conf.d/0-http.conf
 COPY ./config/nginx-default.conf       /etc/nginx/conf.d/default.conf
+
+# Copy PHP-FPM configuration
 COPY ./config/php-fpm.conf             /usr/local/etc/php-fpm.d/zz-docker_nginx.conf
+
+# Copy Supervisor configuration
 COPY ./config/supervisord.conf         /etc/supervisor.d/supervisord.ini
 COPY ./config/supervisord-php-fpm.conf /etc/supervisor.d/php-fpm.ini
 COPY ./config/supervisord-nginx.conf   /etc/supervisor.d/nginx.ini
