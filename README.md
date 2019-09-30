@@ -1,5 +1,7 @@
 # PHP + Nginx Docker Image
 
+[![Build Status](https://github.com/burningmantech/docker-php-nginx/workflows/CI%2fCD/badge.svg)](https://github.com/burningmantech/docker-php-nginx/actions)
+
 This repository defines a Docker image used by Burning Man for PHP projects.
 
 It includes:

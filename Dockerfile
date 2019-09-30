@@ -19,9 +19,6 @@ COPY ./error/404.html /var/www/error/404.html
 COPY ./error/405.html /var/www/error/405.html
 COPY ./error/500.html /var/www/error/500.html
 
-# Copy tools
-COPY ./tools/checkphpsyntax /usr/local/bin/checkphpsyntax
-
 # Set working directory to where the application lives
 WORKDIR /var/www/application
 
