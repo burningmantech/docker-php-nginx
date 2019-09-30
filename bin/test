@@ -4,7 +4,7 @@
 
 set -eu
 
-wd="$(cd "$(dirname "$0")/.." && pwd)";
+. "$(dirname "$0")/.common.sh";
 
 host_port="$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')";
 
@@ -39,10 +39,6 @@ http_body() {
 ##
 
 start_container() {
-    local image_repo="php-nginx";
-    local  image_tag="$(cat "${wd}/Dockerfile" | grep -e '^FROM ' | sed -e 's|^FROM php:||' -e 's|-fpm||')";
-    local image_name="${image_repo}:${image_tag}";
-
     container_name="php-nginx-test_${host_port}";
 
     cleanup() {
@@ -50,7 +46,7 @@ start_container() {
 
         docker kill "${container_name}" > /dev/null;
     }
-    trap cleanup EXIT;
+    trap stop_container EXIT;
 
     echo "Starting test container: ${container_name}...";
 
@@ -62,6 +58,17 @@ start_container() {
         --volume "${wd}/test/application:/var/www/application"  \
         "${image_name}"                                         \
         > /dev/null;
+}
+
+
+stop_container() {
+    if docker inspect \
+        -f "{{.State.Running}}" "${container_name}" \
+        > /dev/null 2>&1;
+    then
+        echo "Terminating test container: ${container_name}...";
+        docker kill "${container_name}";
+    fi;
 }
 
 
@@ -346,15 +353,38 @@ test_app_hello_php() {
 }
 
 
-echo "Testing service...";
+test_image () {
+    local image_version="${1}"; shift;
 
-start_container        || exit 1;
-wait_for_server        || exit 2;
-test_root_resource     || exit 100;
-test_static_not_found  || exit 144;
-test_static_hello_html || exit 200;
-# test_app_root        || exit 300;
-test_app_hello_html    || exit 301;
-test_app_hello_php     || exit 302;
+    local php_version="$(echo "${image_version}" | cut -d ":" -f 1)";
+    local     os_name="$(echo "${image_version}" | cut -d ":" -f 2)";
+    local  os_version="$(echo "${image_version}" | cut -d ":" -f 3)";
+
+    image_name="$(image_name "${php_version}" "${os_name}" "${os_version}")";
+
+    echo "Testing ${image_name}...";
+
+    start_container        || exit 1;
+    wait_for_server        || exit 2;
+    test_root_resource     || exit 100;
+    test_static_not_found  || exit 144;
+    test_static_hello_html || exit 200;
+    # test_app_root        || exit 300;
+    test_app_hello_html    || exit 301;
+    test_app_hello_php     || exit 302;
+    stop_container         || exit 999;
+
+    echo "";
+}
+
+
+test_images () {
+    for image_version in "${@}"; do
+        test_image "${image_version}";
+    done;
+}
+
+
+test_images ${image_versions};
 
 echo "Tests passed."

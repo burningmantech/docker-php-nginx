@@ -6,11 +6,18 @@ This repository defines a Docker image used by Burning Man for PHP projects.
 
 It includes:
 
- * [Alpine Linux](https://www.alpinelinux.org/) 3.8
- * [PHP](https://secure.php.net/) 7.2: The PHP language interpreter and runtime.
+ * [Alpine Linux](https://www.alpinelinux.org/)
+ * [PHP](https://secure.php.net/): The PHP language interpreter and runtime.
  * [PHP-FPM](https://php-fpm.org/): A PHP FastCGI implementation
  * [Nginx](https://nginx.org/): HTTP server.
 
+## Supported versions
+
+PHP    | Nginx  | Operating System
+------ | ------ | -----------------
+7.2.19 | 1.14.2 | Alpine Linux 3.8
+7.2.23 | 1.16.1 | Alpine Linux 3.10
+7.3.10 | 1.16.1 | Alpine Linux 3.10
 
 ## Usage
 
@@ -105,18 +112,3 @@ docker run --rm php-fpm:7.2-alpine3.8 php -m
 ```
 
 To add PHP extensions to your images, see the "How to install more PHP extensions" section in the [Official PHP Image](https://hub.docker.com/_/php/) documentation.
-
-
-## Versioning Strategy
-
-The docker image does not attempt to pin down specific versions of its components, other than the version necessary for compatibility.
-
-PHP and Alpine Linux both use version numbers that basically comply with [Semantic Versioning](https://semver.org/).
-That means that the major and minor versions indicate the relevant compatibility information to users, and the minor version should not affect compatibility.
-
-Published Docker images from this repository will therefore provide major and minor versions for PHP and Alpine Linux, and may update periodically with new patch versions of each, and users of this image should be aware that rebuilding your own images that use this base image may result in newest patch versions of PHP and Alpine Linux.
-
-As these are presumed to retain compatibility, this should avoid most problems related to such changed, but this is not bullet-proof.
-A bug fix in PHP may surface an otherwise dormant bug in a PHP program, and it's possible that the maintained of the underlying software introduced a non-compatible change despite the commitment not to do so in a patch version (usually this is accidental; occasionally it may be an intentional trade-off).
-
-The advantage of this is that bug fixes and security updates that are almost always desirable are applied when you rebuild your applications.
