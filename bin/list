@@ -1,0 +1,9 @@
+#!/bin/sh
+
+#
+# List available images
+#
+
+. "$(dirname "$0")/.common.sh";
+
+docker images --format "{{.Repository}}:{{.Tag}}" "${image_repository}";
