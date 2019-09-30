@@ -6,10 +6,31 @@
 
 . "$(dirname "$0")/.common.sh";
 
-label="$(cd "${wd}" && git describe --all --long)";
 
-exec docker build          \
-    --tag="${image_name}"  \
-    --label="${label}"     \
-    "${wd}"                \
-    ;
+build_image () {
+    local image_version="${1}"; shift;
+
+    local php_version="$(echo "${image_version}" | cut -d ":" -f 1)";
+    local     os_name="$(echo "${image_version}" | cut -d ":" -f 2)";
+    local  os_version="$(echo "${image_version}" | cut -d ":" -f 3)";
+
+    image_name="$(image_name "${php_version}" "${os_name}" "${os_version}")";
+
+    echo "Building ${image_name}...";
+
+    cat "${wd}/Dockerfile.in"                       | \
+        sed -e "s|{{php_version}}|${php_version}|g" | \
+        sed -e "s|{{os_name}}|${os_name}|g"         | \
+        sed -e "s|{{os_version}}|${os_version}|g"   | \
+        docker build --tag="${image_name}" --file="-" "${wd}";
+}
+
+
+build_images () {
+    for image_version in "${@}"; do
+        build_image "${image_version}";
+    done;
+}
+
+
+build_images ${image_versions};

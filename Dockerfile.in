@@ -1,4 +1,4 @@
-FROM php:7.2-fpm-alpine3.8
+FROM php:{{php_version}}-fpm-{{os_name}}{{os_version}}
 
 # Install Nginx and supervisor
 RUN apk add --no-cache nginx supervisor;

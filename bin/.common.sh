@@ -3,7 +3,27 @@ set -eu
 wd="$(cd "$(dirname "$0")/.." && pwd)";
 
 image_repo="php-nginx";
- image_tag="$(cat "${wd}/Dockerfile" | grep -e '^FROM ' | sed -e 's|^FROM php:||' -e 's|-fpm||')";
-image_name="${image_repo}:${image_tag}";
+
+image_versions=$(grep -v '^ *#' "${wd}/versions.txt");
+
+image_tag ()
+{
+    php_version="${1}"; shift;
+        os_name="${1}"; shift;
+     os_version="${1}"; shift;
+
+    echo "${php_version}-fpm-${os_name}${os_version}";
+}
+
+image_name ()
+{
+    php_version="${1}"; shift;
+        os_name="${1}"; shift;
+     os_version="${1}"; shift;
+
+    image_tag="$(image_tag "${php_version}" "${os_name}" "${os_version}")";
+
+    echo "${image_repo}:${image_tag}";
+}
 
 container_name="php-nginx";
