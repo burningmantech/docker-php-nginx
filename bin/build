@@ -23,6 +23,8 @@ build_image () {
         sed -e "s|{{os_name}}|${os_name}|g"         | \
         sed -e "s|{{os_version}}|${os_version}|g"   | \
         docker build --tag="${image_name}" --file="-" "${wd}";
+
+    echo "";
 }
 
 
