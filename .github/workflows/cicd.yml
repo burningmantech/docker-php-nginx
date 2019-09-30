@@ -100,3 +100,33 @@ jobs:
 
       - name: Test Docker image
         run: ./bin/test
+
+
+  push-hub:
+    name: Push image to Docker Hub
+
+    needs: [test-docker]
+    if: github.ref == 'refs/heads/master'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: images
+
+      - name: Load Docker image
+        run: gzip --uncompress --stdout images/images.tgz | docker image load
+
+      - name: Log into Docker Hub
+        run: docker login --username="${DOCKER_USER}" --password="${DOCKER_PASSWORD}"
+
+      - name: Push to Docker Hub
+        run: |
+          for image_name in $(docker images --format "{{.Repository}}:{{.Tag}}" php-nginx); do
+            docker tag "${image_name}" "burningman/${image_name}"
+            docker push "burningman/${image_name}"
+          done

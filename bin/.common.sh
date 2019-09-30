@@ -2,7 +2,7 @@ set -eu
 
 wd="$(cd "$(dirname "$0")/.." && pwd)";
 
-image_repo="php-nginx";
+image_repository="php-nginx";
 
 image_versions=$(grep -v '^ *#' "${wd}/versions.txt");
 
@@ -23,7 +23,7 @@ image_name ()
 
     image_tag="$(image_tag "${php_version}" "${os_name}" "${os_version}")";
 
-    echo "${image_repo}:${image_tag}";
+    echo "${image_repository}:${image_tag}";
 }
 
 container_name="php-nginx";

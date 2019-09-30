@@ -6,6 +6,15 @@
 
 . "$(dirname "$0")/.common.sh";
 
+if [ $# -ge 1 ]; then
+    image_name="${1}"; shift;
+else
+    echo "No image specified.  Available images:";
+    docker images --format "{{.Repository}}:{{.Tag}}" "${image_repository}" \
+        | sort;
+    exit 0;
+fi;
+
 exec docker run                                             \
     --rm                                                    \
     --name="${container_name}"                              \
