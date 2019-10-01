@@ -102,7 +102,7 @@ jobs:
         run: ./bin/test;
 
 
-  push-hub:
+  push-dockerhub:
     name: Push image to Docker Hub
 
     needs: [test-docker]
@@ -135,6 +135,9 @@ jobs:
             echo "Pushing burningman/${image_name}";
             docker push "burningman/${image_name}";
           done;
+
+      - name: Checkout source code
+        uses: actions/checkout@v1
 
       - name: Update Docker Hub description
         env:
