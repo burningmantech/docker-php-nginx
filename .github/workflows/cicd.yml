@@ -131,7 +131,7 @@ jobs:
         run: |
           for image_name in $(docker images --format "{{.Repository}}:{{.Tag}}" php-nginx); do
             echo "Tagging ${image_name} -> burningman/test-${image_name}"
-            docker push "burningman/test-${image_name}"
+            docker tag "${image_name}" "burningman/test-${image_name}"
             echo "Pushing burningman/test-${image_name}"
             docker push "burningman/test-${image_name}"
           done
