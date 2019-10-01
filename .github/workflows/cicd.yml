@@ -127,7 +127,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: echo "${DOCKER_PASSWORD}" | docker login --username="${DOCKER_USER}" --password-stdin;
 
-      - name: Push to Docker Hub
+      - name: Push image to Docker Hub
         run: |
           for image_name in $(docker images --format "{{.Repository}}:{{.Tag}}" php-nginx); do
             echo "Tagging ${image_name} -> burningman/${image_name}";
@@ -135,3 +135,24 @@ jobs:
             echo "Pushing burningman/${image_name}";
             docker push "burningman/${image_name}";
           done;
+
+      - name: Update Docker Hub description
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          token="$(                                                                              \
+            curl                                                                                 \
+              --silent                                                                           \
+              --request POST                                                                     \
+              --header "Content-Type: application/json"                                          \
+              --data "{\"username\": \"${DOCKER_USER}\", \"password\": \"${DOCKER_PASSWORD}\"}"  \
+              "https://hub.docker.com/v2/users/login/"                                           \
+            | sed 's|{.*"token": *"\([^"]*\)".*}|\1|'                                            \
+          )";
+          curl --silent --output /dev/null                                \
+            --request PATCH                                               \
+            --header "Authorization: JWT ${token}"                        \
+            --data-urlencode "full_description@README.md"                 \
+            https://hub.docker.com/v2/repositories/burningman/php-nginx/  \
+            ;
