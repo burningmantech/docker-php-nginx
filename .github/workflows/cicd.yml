@@ -130,6 +130,8 @@ jobs:
       - name: Push to Docker Hub
         run: |
           for image_name in $(docker images --format "{{.Repository}}:{{.Tag}}" php-nginx); do
-            docker tag "${image_name}" "burningman/${image_name}"
+            echo "Tagging ${image_name} -> burningman/${image_name}"
+            docker push "burningman/${image_name}"
+            echo "Pushing burningman/${image_name}"
             docker push "burningman/${image_name}"
           done
