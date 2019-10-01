@@ -122,7 +122,7 @@ jobs:
         run: gzip --uncompress --stdout images/images.tgz | docker image load
 
       - name: Log into Docker Hub
-        run: docker login --username="${DOCKER_USER}" --password="${DOCKER_PASSWORD}"
+        run: echo "${DOCKER_PASSWORD}" | docker login --username="${DOCKER_USER}" --password-stdin
 
       - name: Push to Docker Hub
         run: |
