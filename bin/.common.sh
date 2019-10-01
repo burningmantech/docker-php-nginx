@@ -12,7 +12,7 @@ image_tag ()
         os_name="${1}"; shift;
      os_version="${1}"; shift;
 
-    echo "${php_version}-fpm-${os_name}${os_version}";
+    echo "${php_version}-${os_name}${os_version}";
 }
 
 image_name ()
