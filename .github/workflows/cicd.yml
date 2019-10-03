@@ -67,7 +67,7 @@ jobs:
       - name: Save Docker image
         run: |
           mkdir images;
-          docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" php-nginx) | gzip -9 > images/images.tgz;
+          docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" burningman/php-nginx) | gzip -9 > images/images.tgz;
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v1
@@ -113,6 +113,10 @@ jobs:
 
     steps:
 
+      # Need source code to push README file contents to Docker Hub
+      - name: Checkout source code
+        uses: actions/checkout@v1
+
       - name: Download Docker image artifact
         uses: actions/download-artifact@v1
         with:
@@ -130,14 +134,9 @@ jobs:
       - name: Push image to Docker Hub
         run: |
           for image_name in $(docker images --format "{{.Repository}}:{{.Tag}}" php-nginx); do
-            echo "Tagging ${image_name} -> burningman/${image_name}";
-            docker tag "${image_name}" "burningman/${image_name}";
-            echo "Pushing burningman/${image_name}";
-            docker push "burningman/${image_name}";
+            echo "Pushing ${image_name}";
+            docker push "${image_name}";
           done;
-
-      - name: Checkout source code
-        uses: actions/checkout@v1
 
       - name: Update Docker Hub description
         env:
