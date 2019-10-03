@@ -2,7 +2,7 @@ set -eu
 
 wd="$(cd "$(dirname "$0")/.." && pwd)";
 
-image_repository="php-nginx";
+image_repository="burningman/php-nginx";
 
 image_versions=$(grep -v '^ *#' "${wd}/versions.txt");
 
