@@ -67,7 +67,7 @@ jobs:
       - name: Save Docker image
         run: |
           mkdir images;
-          docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" php-nginx) | gzip -9 > images/images.tgz;
+          docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" burningman/php-nginx) | gzip -9 > images/images.tgz;
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v1
