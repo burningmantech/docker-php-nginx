@@ -133,7 +133,7 @@ jobs:
 
       - name: Push image to Docker Hub
         run: |
-          for image_name in $(docker images --format "{{.Repository}}:{{.Tag}}" php-nginx); do
+          for image_name in $(docker images --format "{{.Repository}}:{{.Tag}}" burningman/php-nginx); do
             echo "Pushing ${image_name}";
             docker push "${image_name}";
           done;
