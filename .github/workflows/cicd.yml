@@ -54,7 +54,7 @@ jobs:
     name: Build Docker image
 
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     steps:
 
@@ -83,7 +83,7 @@ jobs:
     needs: [docker]
 
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     steps:
 
@@ -109,7 +109,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
 
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     steps:
 
