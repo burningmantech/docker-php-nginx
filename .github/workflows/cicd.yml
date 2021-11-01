@@ -1,12 +1,13 @@
-# Docs:
-# https://help.github.com/en/articles/about-github-actions
-# https://help.github.com/en/articles/configuring-a-workflow
-# https://help.github.com/en/articles/workflow-syntax-for-github-actions
+# Docs: https://docs.github.com/en/actions
 
 
 name: CI/CD
 
-on: [push]
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
 
 
 jobs:
@@ -14,7 +15,7 @@ jobs:
   info:
 
     name: Workflow information
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     timeout-minutes: 1
 
     steps:
