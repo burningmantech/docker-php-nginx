@@ -1,7 +1,8 @@
 # PHP version : OS name : OS version
-8.0.3:alpine:3.12
-7.4.13:alpine:3.12
 7.2.19:alpine:3.8
 7.2.23:alpine:3.10
 7.3.10:alpine:3.10
 7.4.4:alpine:3.11
+7.4.13:alpine:3.12
+8.0.3:alpine:3.12
+8.0.10:alpine:3.14
