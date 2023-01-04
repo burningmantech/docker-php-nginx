@@ -15,13 +15,9 @@ It includes:
 
 PHP    | Nginx  | Operating System
 ------ | ------ | -----------------
-7.2.19 | 1.14.2 | Alpine Linux 3.8
-7.2.23 | 1.16.1 | Alpine Linux 3.10
-7.3.10 | 1.16.1 | Alpine Linux 3.10
-7.4.4 | 1.16.1 | Alpine Linux 3.11
-7.4.13 | 1.18.0 | Alpine Linux 3.12
-8.0.3 | 1.18.0 | Alpine Linux 3.12
-8.0.6 | 1.18.0 | Alpine Linux 3.13
+8.1.4 | 1.20.2 | Alpine Linux 3.15
+8.2.0 | 1.22.1 | Alpine Linux 3.16
+8.2.0 | 1.22.1 | Alpine Linux 3.17
 
 ## Usage
 
@@ -86,8 +82,8 @@ However, if you are testing a web application that uses this container, you may 
 
 The configuration files for Nginx are at `/etc/nginx/`.
 This image adds:
- * [`/etc/nginx/conf.d/0-http.conf`](config/nginx-http.conf): Enables gzip.
- * [`/etc/nginx/conf.d/default.conf`](config/nginx-default.conf): Sets up the default web site.
+ * [`/etc/nginx/httpd.d/0-http.conf`](config/nginx-http.conf): Enables gzip.
+ * [`/etc/nginx/httpd.d/default.conf`](config/nginx-default.conf): Sets up the default web site.
 
 ### PHP
 
