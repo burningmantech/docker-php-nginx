@@ -6,7 +6,7 @@ set -eu
 
 . "$(dirname "$0")/.common.sh";
 
-host_port="$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')";
+host_port="$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')";
 
 container_name="";
 
@@ -110,7 +110,7 @@ wait_for_server() {
     local e;
 
     check_timeout() {
-        local timeout=60;
+        local timeout=15;
 
         if [ ${count} -gt ${timeout} ]; then
             echo "ERROR: Timed out";
