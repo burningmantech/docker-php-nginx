@@ -32,7 +32,7 @@ jobs:
             registry-1.docker.io:443
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build Docker image
         run: ./bin/build;
@@ -43,7 +43,7 @@ jobs:
           docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" burningman/php-nginx) | gzip -9 > images/images.tgz;
 
       - name: Upload Docker image artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: images
           path: images
@@ -67,10 +67,10 @@ jobs:
             github.com:443
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Download Docker image artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: images
 
@@ -98,10 +98,10 @@ jobs:
 
       # Need source code to push README file contents to Docker Hub
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Download Docker image artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: images
 
