@@ -19,7 +19,6 @@ jobs:
     timeout-minutes: 15
 
     steps:
-
       - name: Harden CI
         uses: step-security/harden-runner@v2.0.0
         with:
@@ -49,9 +48,7 @@ jobs:
           name: images
           path: images
 
-
   test-docker:
-
     name: Test Docker image
 
     needs: [docker]
@@ -82,7 +79,6 @@ jobs:
 
       - name: Test Docker image
         run: ./bin/test;
-
 
   push-dockerhub:
     name: Push image to Docker Hub
