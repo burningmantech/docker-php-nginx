@@ -37,14 +37,14 @@ jobs:
       - name: Build Docker image
         run: ./bin/build;
 
-      - name: Save Docker image
-        run: docker image save ranger-ims-server:dev | gzip -9 > docker_image.tgz
+      - name: Save Docker images
+        run: docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" burningman/php-nginx) | gzip -9 > docker_images.tgz
 
-      - name: Upload Docker image artifact
+      - name: Upload Docker image artifacts
         uses: actions/upload-artifact@v3
         with:
           name: docker
-          path: docker_image.tgz
+          path: docker_images.tgz
 
   test-docker:
     name: Test Docker image
@@ -72,8 +72,8 @@ jobs:
         with:
           name: docker
 
-      - name: Load Docker image
-        run: gzip --uncompress --stdout docker_image.tgz | docker image load
+      - name: Load Docker images
+        run: gzip --uncompress --stdout docker_images.tgz | docker image load
 
       - name: Test Docker image
         run: ./bin/test;
@@ -103,8 +103,8 @@ jobs:
         with:
           name: docker
 
-      - name: Load Docker image
-        run: gzip --uncompress --stdout docker_image.tgz | docker image load
+      - name: Load Docker images
+        run: gzip --uncompress --stdout docker_images.tgz | docker image load
 
       - name: Log into Docker Hub
         env:
