@@ -19,7 +19,6 @@ jobs:
     timeout-minutes: 15
 
     steps:
-
       - name: Harden CI
         uses: step-security/harden-runner@v2.0.0
         with:
@@ -33,25 +32,21 @@ jobs:
             registry-1.docker.io:443
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build Docker image
         run: ./bin/build;
 
-      - name: Save Docker image
-        run: |
-          mkdir images;
-          docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" burningman/php-nginx) | gzip -9 > images/images.tgz;
+      - name: Save Docker images
+        run: docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" burningman/php-nginx) | gzip -9 > docker_images.tgz
 
-      - name: Upload Docker image artifact
-        uses: actions/upload-artifact@v1
+      - name: Upload Docker image artifacts
+        uses: actions/upload-artifact@v3
         with:
-          name: images
-          path: images
-
+          name: docker
+          path: docker_images.tgz
 
   test-docker:
-
     name: Test Docker image
 
     needs: [docker]
@@ -70,19 +65,18 @@ jobs:
             github.com:443
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v1
+      - name: Download Docker image artifacts
+        uses: actions/download-artifact@v3
         with:
-          name: images
+          name: docker
 
-      - name: Load Docker image
-        run: gzip --uncompress --stdout images/images.tgz | docker image load;
+      - name: Load Docker images
+        run: gzip --uncompress --stdout docker_images.tgz | docker image load
 
       - name: Test Docker image
         run: ./bin/test;
-
 
   push-dockerhub:
     name: Push image to Docker Hub
@@ -102,15 +96,15 @@ jobs:
 
       # Need source code to push README file contents to Docker Hub
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v1
+      - name: Download Docker image artifacts
+        uses: actions/download-artifact@v3
         with:
-          name: images
+          name: docker
 
-      - name: Load Docker image
-        run: gzip --uncompress --stdout images/images.tgz | docker image load;
+      - name: Load Docker images
+        run: gzip --uncompress --stdout docker_images.tgz | docker image load
 
       - name: Log into Docker Hub
         env:
