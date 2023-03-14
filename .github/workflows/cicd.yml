@@ -38,9 +38,7 @@ jobs:
         run: ./bin/build;
 
       - name: Save Docker image
-        run: |
-          mkdir images;
-          docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" burningman/php-nginx) | gzip -9 > images/images.tgz;
+        run: docker image save ranger-ims-server:dev | gzip -9 > docker_image.tgz
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v3
