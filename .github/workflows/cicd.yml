@@ -10,10 +10,15 @@ on:
     branches: ["master"]
 
 
+env:
+  DOCKER_REGISTRY: ghcr.io
+  DOCKER_IMAGE_REPO: burningman/php-nginx
+
+
 jobs:
 
   docker:
-    name: Build Docker image
+    name: Build Docker images
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -34,11 +39,11 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Build Docker image
+      - name: Build Docker images
         run: ./bin/build;
 
       - name: Save Docker images
-        run: docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" burningman/php-nginx) | gzip -9 > docker_images.tgz
+        run: docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" "${{ env.DOCKER_IMAGE_REPO }}") | gzip -9 > docker_images.tgz
 
       - name: Upload Docker image artifacts
         uses: actions/upload-artifact@v3
@@ -47,7 +52,7 @@ jobs:
           path: docker_images.tgz
 
   test-docker:
-    name: Test Docker image
+    name: Test Docker images
 
     needs: [docker]
 
@@ -75,11 +80,11 @@ jobs:
       - name: Load Docker images
         run: gzip --uncompress --stdout docker_images.tgz | docker image load
 
-      - name: Test Docker image
+      - name: Test Docker images
         run: ./bin/test;
 
   push-dockerhub:
-    name: Push image to Docker Hub
+    name: Push images to Docker Hub
 
     needs: [test-docker]
     if: github.ref == 'refs/heads/master'
@@ -106,36 +111,16 @@ jobs:
       - name: Load Docker images
         run: gzip --uncompress --stdout docker_images.tgz | docker image load
 
-      - name: Log into Docker Hub
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: echo "${DOCKER_PASSWORD}" | docker login --username="${DOCKER_USER}" --password-stdin;
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push image to Docker Hub
+      - name: Push images
         run: |
-          for image_name in $(docker images --format "{{.Repository}}:{{.Tag}}" burningman/php-nginx); do
+          for image_name in $(docker images --format "{{.Repository}}:{{.Tag}}" "${{ env.DOCKER_IMAGE_REPO }}"); do
             echo "Pushing ${image_name}";
             docker push "${image_name}";
           done;
-
-      - name: Update Docker Hub description
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          token="$(                                                                              \
-            curl                                                                                 \
-              --silent                                                                           \
-              --request POST                                                                     \
-              --header "Content-Type: application/json"                                          \
-              --data "{\"username\": \"${DOCKER_USER}\", \"password\": \"${DOCKER_PASSWORD}\"}"  \
-              "https://hub.docker.com/v2/users/login/"                                           \
-            | sed 's|{.*"token": *"\([^"]*\)".*}|\1|'                                            \
-          )";
-          curl --silent --output /dev/null                                \
-            --request PATCH                                               \
-            --header "Authorization: JWT ${token}"                        \
-            --data-urlencode "full_description@README.md"                 \
-            https://hub.docker.com/v2/repositories/burningman/php-nginx/  \
-            ;
