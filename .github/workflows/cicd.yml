@@ -122,5 +122,5 @@ jobs:
         run: |
           for image_name in $(docker images --format "{{.Repository}}:{{.Tag}}" "${{ env.DOCKER_IMAGE_REPO }}"); do
             echo "Pushing ${image_name}";
-            docker push "${image_name}";
+            docker push "${{ env.DOCKER_REGISTRY }}/${image_name}";
           done;
