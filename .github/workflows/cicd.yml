@@ -35,7 +35,7 @@ jobs:
             dl-cdn.alpinelinux.org:443
             github.com:443
             production.cloudflare.docker.com:443
-            productionresultssa*.blob.core.windows.net:443
+            productionresultssa4.blob.core.windows.net:443
             registry-1.docker.io:443
 
       - name: Checkout source code
@@ -85,8 +85,8 @@ jobs:
       - name: Test Docker images
         run: ./bin/test;
 
-  push-dockerhub:
-    name: Push images to Docker Hub
+  push-docker-repo:
+    name: Push images to repository
 
     needs: [test-docker]
     if: github.ref == 'refs/heads/master'
@@ -99,7 +99,11 @@ jobs:
       - name: Harden CI
         uses: step-security/harden-runner@v2.2.1
         with:
-          egress-policy: audit
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            ghcr.io:443
+            github.com:443
 
       # Need source code to push README file contents to Docker Hub
       - name: Checkout source code
