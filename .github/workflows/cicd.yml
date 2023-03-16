@@ -32,6 +32,7 @@ jobs:
           disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
+            actions-results-receiver-production.githubapp.com:443
             auth.docker.io:443
             dl-cdn.alpinelinux.org:443
             github.com:443
