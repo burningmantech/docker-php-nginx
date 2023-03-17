@@ -130,3 +130,11 @@ jobs:
             echo "Pushing ${image_name}";
             docker push "${image_name}";
           done;
+
+      - name: Purge untagged images
+        uses: actions/delete-package-versions@v4
+        with:
+          package-name: ${{ env.DOCKER_IMAGE_REPO }}
+          package-type: "container"
+          min-versions-to-keep: 3
+          delete-only-untagged-versions: true
