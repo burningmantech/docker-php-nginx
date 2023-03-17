@@ -18,12 +18,11 @@ build_image () {
 
     echo "Building ${image_name}...";
 
-    cat "${wd}/Dockerfile.in" |                       \
-        docker build                                  \
-            --build-arg PHP_VERSION=${php_version}    \
-            --build-arg OS_NAME=${os_name}            \
-            --build-arg OS_VERSION=${os_version}      \
-            --tag="${image_name}" --file="-" "${wd}";
+    docker build                                 \
+        --build-arg PHP_VERSION="${php_version}" \
+        --build-arg OS_NAME="${os_name}"         \
+        --build-arg OS_VERSION="${os_version}"   \
+        --tag="${image_name}" "${wd}";
 
     echo "";
 }
