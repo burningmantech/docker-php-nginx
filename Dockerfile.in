@@ -1,4 +1,8 @@
-FROM php:{{php_version}}-fpm-{{os_name}}{{os_version}}
+ARG PHP_VERSION
+ARG OS_NAME
+ARG OS_VERSION
+
+FROM php:${PHP_VERSION}-fpm-${OS_NAME}${OS_VERSION}
 
 # Install Nginx and supervisor
 # Ngnix needs a run directory
