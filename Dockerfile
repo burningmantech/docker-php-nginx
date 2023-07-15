@@ -4,6 +4,58 @@ ARG OS_VERSION
 
 FROM php:${PHP_VERSION}-fpm-${OS_NAME}${OS_VERSION}
 
+# Install OS packages required at runtime
+RUN apk add --no-cache  \
+  icu                   \
+  libjpeg-turbo         \
+  libpng                \
+  libwebp               \
+  libxml2               \
+  libzip                \
+  mysql-client          \
+  tzdata                \
+  zip                   \
+  ;
+
+# Build extensions
+RUN                                                     \
+  apk add --no-cache                                    \
+    icu-dev                                             \
+    libjpeg-turbo-dev                                   \
+    libpng-dev                                          \
+    libwebp-dev                                         \
+    libxml2-dev                                         \
+    libzip-dev                                          \
+    pcre-dev ${PHPIZE_DEPS}                             \
+  && docker-php-ext-configure gd                        \
+    --with-webp=/usr/include/                           \
+    --with-jpeg=/usr/include/                           \
+  && docker-php-ext-configure opcache --enable-opcache  \
+  && docker-php-ext-configure intl                      \
+  && docker-php-ext-configure exif                      \
+  && docker-php-ext-install -j$(nproc)                  \
+    exif                                                \
+    gd                                                  \
+    intl                                                \
+    opcache                                             \
+    pdo                                                 \
+    pdo_mysql                                           \
+    zip                                                 \
+  && MAKEFLAGS="-j $(nproc)" pecl install swoole        \
+  && docker-php-ext-enable swoole                       \
+  && docker-php-ext-configure pcntl --enable-pcntl      \
+  && docker-php-ext-install pcntl                       \
+  && apk del                                            \
+    icu-dev                                             \
+    libjpeg-turbo-dev                                   \
+    libpng-dev                                          \
+    libwebp-dev                                         \
+    libxml2-dev                                         \
+    libzip-dev                                          \
+    pcre-dev                                            \
+    ${PHPIZE_DEPS}                                      \
+                                                        ;
+
 # Install Nginx and supervisor
 # Ngnix needs a run directory
 # Send log output to supervisord's standard I/O
