@@ -42,7 +42,7 @@ jobs:
             registry-1.docker.io:443
 
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build Docker images
         run: ./bin/build;
@@ -76,7 +76,7 @@ jobs:
             github.com:443
 
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download Docker image artifacts
         uses: actions/download-artifact@v3
@@ -112,7 +112,7 @@ jobs:
 
       # Need source code to push README file contents to Docker Hub
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download Docker image artifacts
         uses: actions/download-artifact@v3
