@@ -51,7 +51,7 @@ jobs:
         run: docker image save $(docker images --format "{{.Repository}}:{{.Tag}}" "${{ env.DOCKER_IMAGE_REPO }}") | gzip -9 > docker_images.tgz
 
       - name: Upload Docker image artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docker
           path: docker_images.tgz
