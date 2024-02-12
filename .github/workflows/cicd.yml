@@ -137,7 +137,7 @@ jobs:
           done;
 
       - name: Purge untagged images
-        uses: actions/delete-package-versions@v4
+        uses: actions/delete-package-versions@v5
         with:
           package-name: ${{ env.DOCKER_IMAGE_NAME }}
           package-type: "container"
