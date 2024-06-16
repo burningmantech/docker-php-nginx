@@ -41,7 +41,7 @@ RUN                                                     \
     pdo                                                 \
     pdo_mysql                                           \
     zip                                                 \
-  && MAKEFLAGS="-j $(nproc)" pecl install swoole        \
+  && MAKEFLAGS="-j $(nproc)" pecl install --configureoptions 'enable-brotli="no"' swoole \
   && docker-php-ext-enable swoole                       \
   && docker-php-ext-configure pcntl --enable-pcntl      \
   && docker-php-ext-install pcntl                       \
