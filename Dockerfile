@@ -22,6 +22,7 @@ RUN                                                     \
   apk add --no-cache                                    \
     icu-dev                                             \
     libjpeg-turbo-dev                                   \
+    imagemagick                                         \
     libpng-dev                                          \
     libwebp-dev                                         \
     libxml2-dev                                         \
@@ -45,6 +46,8 @@ RUN                                                     \
   && docker-php-ext-enable swoole                       \
   && docker-php-ext-configure pcntl --enable-pcntl      \
   && docker-php-ext-install pcntl                       \
+  && MAKEFLAGS="-j $(nproc)" pecl install imagick       \
+  && docker-php-ext-enable imagick                      \
   && apk del                                            \
     icu-dev                                             \
     libjpeg-turbo-dev                                   \
@@ -53,7 +56,7 @@ RUN                                                     \
     libxml2-dev                                         \
     libzip-dev                                          \
     pcre-dev                                            \
-    ${PHPIZE_DEPS}                                      \
+   ${PHPIZE_DEPS}                                       \
                                                         ;
 
 # Install Nginx and supervisor
