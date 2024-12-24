@@ -30,7 +30,10 @@ RUN apk add --no-cache  \
   && docker-php-ext-configure opcache --enable-opcache  \
   && docker-php-ext-configure intl                      \
   && docker-php-ext-configure exif                      \
-  && docker-php-ext-install -j$(nproc)                  \
+  && docker-php-ext-configure gd                        \
+      --with-jpeg=/usr/include/                         \
+      --with-webp=/usr/include/                         \
+ && docker-php-ext-install -j$(nproc)                   \
     exif                                                \
     gd                                                  \
     intl                                                \
@@ -43,9 +46,6 @@ RUN apk add --no-cache  \
   && docker-php-ext-configure pcntl --enable-pcntl      \
   && docker-php-ext-install pcntl                       \
   && docker-php-ext-enable imagick                      \
-  && docker-php-ext-configure gd                        \
-     --with-jpeg=/usr/include/                          \
-     --with-webp=/usr/include/                          \
  && apk del                                             \
     icu-dev                                             \
     imagemagick-dev                                     \
