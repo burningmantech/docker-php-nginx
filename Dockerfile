@@ -24,9 +24,12 @@ RUN apk add --no-cache  \
   libwebp-dev                                         \
   libxml2-dev                                         \
   libzip-dev                                          \
-  pcre-dev ${PHPIZE_DEPS}                             \
-  && cd /tmp && git clone https://github.com/Imagick/imagick.git \
-  && MAKEFLAGS="-j $(nproc)"  pecl install /tmp/imagick/package.xml \
+  pcre-dev ${PHPIZE_DEPS}                             ;
+ADD --chmod=0755 \
+      https://github.com/mlocati/docker-php-extension-installer/releases/download/2.6.3/install-php-extensions \
+      /usr/local/bin/
+# TODO: Use latest released version, after https://github.com/Imagick/imagick/issues/640 is fixed
+RUN install-php-extensions imagick/imagick@28f27044e435a2b203e32675e942eb8de620ee58 \
   && docker-php-ext-configure opcache --enable-opcache  \
   && docker-php-ext-configure intl                      \
   && docker-php-ext-configure exif                      \
