@@ -36,6 +36,7 @@ jobs:
             auth.docker.io:443
             dl-cdn.alpinelinux.org:443
             github.com:443
+            objects.githubusercontent.com:443
             pecl.php.net:443
             production.cloudflare.docker.com:443
             productionresultssa4.blob.core.windows.net:443
@@ -74,6 +75,7 @@ jobs:
           allowed-endpoints: >
             api.github.com:443
             github.com:443
+            objects.githubusercontent.com:443
 
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -109,6 +111,7 @@ jobs:
             api.github.com:443
             ghcr.io:443
             github.com:443
+            objects.githubusercontent.com:443
 
       # Need source code to push README file contents to Docker Hub
       - name: Checkout source code
