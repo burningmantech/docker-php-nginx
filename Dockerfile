@@ -27,8 +27,6 @@ RUN apk add --no-cache  \
   pcre-dev ${PHPIZE_DEPS}                             \
   && cd /tmp && git clone https://github.com/Imagick/imagick.git \
   && MAKEFLAGS="-j $(nproc)"  pecl install /tmp/imagick/package.xml \
-     --with-webp=/usr/include/                          \
-    --with-jpeg=/usr/include/                           \
   && docker-php-ext-configure opcache --enable-opcache  \
   && docker-php-ext-configure intl                      \
   && docker-php-ext-configure exif                      \
@@ -46,7 +44,9 @@ RUN apk add --no-cache  \
   && docker-php-ext-install pcntl                       \
   && docker-php-ext-enable imagick                      \
   && docker-php-ext-configure gd                        \
-  && apk del                                            \
+     --with-jpeg=/usr/include/                          \
+     --with-webp=/usr/include/                          \
+ && apk del                                             \
     icu-dev                                             \
     imagemagick-dev                                     \
     libjpeg-turbo-dev                                   \
