@@ -4,32 +4,35 @@ ARG OS_VERSION
 
 FROM php:${PHP_VERSION}-fpm-${OS_NAME}${OS_VERSION}
 
-# Install OS packages required at runtime
-RUN apk add --no-cache  \
-  icu                   \
-  libjpeg-turbo         \
-  libpng                \
-  libwebp               \
-  libxml2               \
-  libzip                \
-  mysql-client          \
-  tzdata                \
-  zip                   \
-  git                                                 \
-  icu-dev                                             \
-  imagemagick                                         \
-  imagemagick-dev                                     \
-  libjpeg-turbo-dev                                   \
-  libpng-dev                                          \
-  libwebp-dev                                         \
-  libxml2-dev                                         \
-  libzip-dev                                          \
-  pcre-dev ${PHPIZE_DEPS}                             ;
+# TODO: Use latest released version, after https://github.com/Imagick/imagick/issues/640 is fixed
+
 ADD --chmod=0755 \
       https://github.com/mlocati/docker-php-extension-installer/releases/download/2.6.3/install-php-extensions \
       /usr/local/bin/
-# TODO: Use latest released version, after https://github.com/Imagick/imagick/issues/640 is fixed
-RUN install-php-extensions imagick/imagick@28f27044e435a2b203e32675e942eb8de620ee58 \
+
+# Install OS packages required at runtime
+RUN apk update            \
+  && apk add --no-cache   \
+  icu                     \
+  libjpeg-turbo           \
+  libpng                  \
+  libwebp                 \
+  libxml2                 \
+  libzip                  \
+  mysql-client            \
+  tzdata                  \
+  zip                     \
+  git                     \
+  icu-dev                 \
+  imagemagick             \
+  imagemagick-dev         \
+  libjpeg-turbo-dev       \
+  libpng-dev              \
+  libwebp-dev             \
+  libxml2-dev             \
+  libzip-dev              \
+  pcre-dev ${PHPIZE_DEPS} \
+  && install-php-extensions imagick/imagick@28f27044e435a2b203e32675e942eb8de620ee58 \
   && docker-php-ext-configure opcache --enable-opcache  \
   && docker-php-ext-configure intl                      \
   && docker-php-ext-configure exif                      \
@@ -49,7 +52,7 @@ RUN install-php-extensions imagick/imagick@28f27044e435a2b203e32675e942eb8de620e
   && docker-php-ext-configure pcntl --enable-pcntl      \
   && docker-php-ext-install pcntl                       \
   && docker-php-ext-enable imagick                      \
- && apk del                                             \
+  && apk del                                            \
     icu-dev                                             \
     imagemagick-dev                                     \
     libjpeg-turbo-dev                                   \
@@ -60,7 +63,6 @@ RUN install-php-extensions imagick/imagick@28f27044e435a2b203e32675e942eb8de620e
     pcre-dev                                            \
    ${PHPIZE_DEPS}                                       \
                                                         ;
-
 
 # Install Nginx and supervisor
 # Ngnix needs a run directory
