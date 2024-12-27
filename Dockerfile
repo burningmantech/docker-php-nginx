@@ -17,6 +17,8 @@ RUN apk update            \
   icu                     \
   icu-dev                 \
   libffi                  \
+  libheif                 \
+  libheif-dev             \
   libffi-dev              \
   libjpeg-turbo           \
   libjpeg-turbo-dev       \
@@ -53,6 +55,7 @@ RUN apk update            \
   && apk del                                            \
     icu-dev                                             \
     libffi-dev                                          \
+    libheif-dev                                         \
     libjpeg-turbo-dev                                   \
     libpng-dev                                          \
     libwebp-dev                                         \
