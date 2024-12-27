@@ -13,35 +13,31 @@ ADD --chmod=0755 \
 # Install OS packages required at runtime
 RUN apk update            \
   && apk add --no-cache   \
-  icu                     \
-  libjpeg-turbo           \
-  libpng                  \
-  libwebp                 \
-  libxml2                 \
-  libzip                  \
-  mysql-client            \
-  tzdata                  \
-  zip                     \
   git                     \
+  icu                     \
   icu-dev                 \
-  imagemagick             \
-  imagemagick-dev         \
+  libffi                  \
+  libffi-dev              \
+  libjpeg-turbo           \
   libjpeg-turbo-dev       \
+  libpng                  \
   libpng-dev              \
+  libwebp                 \
   libwebp-dev             \
+  libxml2                 \
   libxml2-dev             \
+  libzip                  \
   libzip-dev              \
-  pcre-dev ${PHPIZE_DEPS} \
-  && install-php-extensions imagick/imagick@28f27044e435a2b203e32675e942eb8de620ee58 \
-  && docker-php-ext-configure opcache --enable-opcache  \
+  mysql-client            \
+  pcre-dev                \
+  tzdata                  \
+  vips                    \
+  zip                     \
+  ${PHPIZE_DEPS}          \
+ && docker-php-ext-configure opcache --enable-opcache  \
   && docker-php-ext-configure intl                      \
   && docker-php-ext-configure exif                      \
-  && docker-php-ext-configure gd                        \
-      --with-jpeg=/usr/include/                         \
-      --with-webp=/usr/include/                         \
- && docker-php-ext-install -j$(nproc)                   \
-    exif                                                \
-    gd                                                  \
+  && docker-php-ext-install -j$(nproc)                  \
     intl                                                \
     opcache                                             \
     pdo                                                 \
@@ -51,10 +47,12 @@ RUN apk update            \
   && docker-php-ext-enable swoole                       \
   && docker-php-ext-configure pcntl --enable-pcntl      \
   && docker-php-ext-install pcntl                       \
-  && docker-php-ext-enable imagick                      \
+  && docker-php-ext-install -j$(nproc) exif             \
+  && docker-php-ext-configure ffi --with-ffi            \
+  && docker-php-ext-install -j$(nproc) ffi              \
   && apk del                                            \
     icu-dev                                             \
-    imagemagick-dev                                     \
+    libffi-dev                                          \
     libjpeg-turbo-dev                                   \
     libpng-dev                                          \
     libwebp-dev                                         \
