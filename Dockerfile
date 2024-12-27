@@ -53,14 +53,12 @@ RUN apk update            \
   && docker-php-ext-configure ffi --with-ffi            \
   && docker-php-ext-install -j$(nproc) ffi              \
   && apk del                                            \
-    icu-dev                                             \
     libffi-dev                                          \
     libheif-dev                                         \
     libjpeg-turbo-dev                                   \
     libpng-dev                                          \
     libwebp-dev                                         \
     libxml2-dev                                         \
-    libzip-dev                                          \
     pcre-dev                                            \
    ${PHPIZE_DEPS}                                       \
                                                         ;
