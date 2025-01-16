@@ -2,7 +2,7 @@ ARG PHP_VERSION=8
 ARG OS_NAME=alpine
 ARG OS_VERSION
 
-FROM php:${PHP_VERSION}-${OS_NAME}${OS_VERSION}
+FROM php:${PHP_VERSION}-fpm-${OS_NAME}${OS_VERSION}
 
 # TODO: Use latest released version, after https://github.com/Imagick/imagick/issues/640 is fixed
 
