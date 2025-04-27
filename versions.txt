@@ -1,2 +1,2 @@
 # PHP version : OS name : OS version
-8.4.2:alpine:3.21
+8.4.6:alpine:3.21
