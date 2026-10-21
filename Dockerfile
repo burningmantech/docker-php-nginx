@@ -31,6 +31,7 @@ RUN apk update            \
   libzip                  \
   libzip-dev              \
   mysql-client            \
+  openssl-dev             \
   pcre-dev                \
   tzdata                  \
   vips                    \
@@ -59,6 +60,7 @@ RUN apk update            \
     libpng-dev                                          \
     libwebp-dev                                         \
     libxml2-dev                                         \
+    openssl-dev                                         \
     pcre-dev                                            \
    ${PHPIZE_DEPS}                                       \
                                                         ;
